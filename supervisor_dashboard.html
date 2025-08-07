@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .btn {
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            background-color: #4c51bf;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #3f448c;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2);
+        }
+
+        .btn-submit {
+            background-color: #38a169;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .btn-submit:hover {
+            background-color: #2f855a;
+        }
+        
+        .btn-danger {
+            background-color: #e53e3e;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c53030;
+        }
+
+        .btn-edit {
+            background-color: #3182ce;
+        }
+        .btn-edit:hover {
+            background-color: #2c5282;
+        }
+
+        /* Table Styling */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .content-table th, .content-table td {
+            text-align: left;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .content-table th {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            background-color: #edf2f7;
+        }
+
+        .content-table td {
+            font-size: 1rem;
+            color: #4a5568;
+        }
+        
+        .content-table tr:hover {
+            background-color: #f7fafc;
+        }
+        
+        .table-image {
+            height: 40px;
+            width: 40px;
+            border-radius: 9999px;
+            object-fit: cover;
+        }
+
+        .table-audio {
+            width: 150px;
+        }
+
+        .edit-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .student-edit-form {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header-container">
+      <h1 class="header-title">Supervisor Dashboard</h1>
+      <a href="{{ url_for('playground') }}" class="btn">Go to Playground</a>
+    </header>
+
+    <main>
+      <!-- Add Student -->
+      <div class="card">
+        <h2 class="card-title">Add New Student</h2>
+        <form action="{{ url_for('add_student') }}" method="post">
+          <div class="form-group">
+            <label for="student_name" class="form-label">Student Name</label>
+            <input type="text" id="student_name" name="student_name" class="form-input" required>
+          </div>
+          <button type="submit" class="btn-submit">Add Student</button>
+        </form>
+      </div>
+
+      <!-- Upload Content -->
+      <div class="card">
+        <h2 class="card-title">Upload Content</h2>
+        <form id="upload-form" action="/api/upload_content" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label for="student_select" class="form-label">Select Student</label>
+            <select name="student_select" id="student_select" class="form-select" required>
+              {% for student in students %}
+              <option value="{{ student['name'] }}">{{ student['name'] }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="label" class="form-label">Label</label>
+            <input type="text" id="label" name="label" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="image" class="form-label">Image (optional)</label>
+            <input type="file" id="image" name="image" accept="image/*" class="form-input" onchange="previewImage(event)">
+            <img id="image-preview" src="#" alt="Image Preview">
+          </div>
+          <div class="form-group">
+            <label for="audio" class="form-label">Audio (optional)</label>
+            <div class="audio-controls">
+              <button type="button" id="record-btn" class="btn btn-edit">Start Recording</button>
+              <button type="button" id="stop-btn" class="btn btn-danger" disabled>Stop Recording</button>
+              <audio id="audio-playback" controls style="display: none;"></audio>
+              <input type="hidden" id="audio-data" name="audio">
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">Upload</button>
+        </form>
+      </div>
+
+      <!-- Student Management -->
+      <div class="card">
+        <h2 class="card-title">Student Management</h2>
+        <div class="table-container">
+          <table class="content-table">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for student in students %}
+              <tr>
+                <td>
+                  <span id="student-name-{{ student['id'] }}">{{ student['name'] }}</span>
+                  <form action="{{ url_for('edit_student') }}" method="post" id="student-edit-form-{{ student['id'] }}" class="student-edit-form">
+                    <input type="hidden" name="student_id" value="{{ student['id'] }}">
+                    <input type="text" name="new_name" value="{{ student['name'] }}" class="form-input" required>
+                    <button type="submit" class="btn btn-submit">Save</button>
+                  </form>
+                </td>
+                <td>
+                  <button onclick="toggleEditStudent({{ student['id'] }})" class="btn btn-edit">Edit</button>
+                  <form action="{{ url_for('delete_student', student_id=student['id']) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Content Management -->
+      <h2 class="card-title">Content Management</h2>
+      {% for student in students %}
+      <div class="card">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">{{ student['name'] }}</h3>
+        <div class="table-container">
+          <table class="content-table">
+            <thead>
+              <tr>
+                <th>Label</th>
+                <th>Image</th>
+                <th>Audio</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in content[student['name']] %}
+              <tr>
+                <td>
+                  <span id="content-label-display-{{ item['id'] }}">{{ item['label'] }}</span>
+                  <form action="{{ url_for('edit_content', content_id=item['id']) }}" method="post" id="content-edit-form-{{ item['id'] }}" style="display:none;" class="edit-form">
+                    <input type="text" name="new_label" value="{{ item['label'] }}" class="form-input" required>
+                    <button type="submit" class="btn btn-submit">Save</button>
+                    <button type="button" onclick="toggleContentEdit({{ item['id'] }})" class="btn btn-danger">Cancel</button>
+                  </form>
+                </td>
+                <td>
+                  {% if item["image"] %}
+                  <img src="{{ url_for('static', filename='uploads/' + item['image']) }}" alt="{{ item['label'] }}" class="table-image">
+                  {% else %}
+                  <span>N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if item["audio"] %}
+                  <audio controls class="table-audio">
+                    <source src="{{ url_for('static', filename='uploads/' + item['audio']) }}" type="audio/mpeg">
+                  </audio>
+                  {% else %}
+                  <span>N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <button onclick="toggleContentEdit({{ item['id'] }})" class="btn btn-edit">Edit</button>
+                  <form action="{{ url_for('delete_content', content_id=item['id']) }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-center text-gray-500 italic mt-12">No students have been added yet.</p>
+      {% endfor %}
+    </main>
+  </div>
+
+  <!-- JS for toggles, previews, audio -->
+  <script>
+    // Student Edit Form Toggle
+    function toggleEditStudent(studentId) {
+      const form = document.getElementById(`student-edit-form-${studentId}`);
+      const nameSpan = document.getElementById(`student-name-${studentId}`);
+      if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        nameSpan.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        nameSpan.style.display = 'inline';
+      }
+    }
+
+    // Content Edit Form Toggle
+    function toggleContentEdit(contentId) {
+      const displaySpan = document.getElementById(`content-label-display-${contentId}`);
+      const editForm = document.getElementById(`content-edit-form-${contentId}`);
+      if (editForm.style.display === 'none' || editForm.style.display === '') {
+        editForm.style.display = 'flex';
+        displaySpan.style.display = 'none';
+      } else {
+        editForm.style.display = 'none';
+        displaySpan.style.display = 'block';
+      }
+    }
+
+    // Image Preview
+    function previewImage(event) {
+      const preview = document.getElementById('image-preview');
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onloadend = function () {
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+
+      if (file) {
+        reader.readAsDataURL(file);
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    }
+
+    // Audio Recording
+    const recordBtn = document.getElementById('record-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const audioPlayback = document.getElementById('audio-playback');
+    const audioDataInput = document.getElementById('audio-data');
+
+    let mediaRecorder;
+    let audioChunks = [];
+
+    recordBtn.onclick = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = event => {
+          audioChunks.push(event.data);
+        };
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPlayback.src = audioUrl;
+          audioPlayback.style.display = 'block';
+
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            audioDataInput.value = reader.result;
+          };
+        };
+        mediaRecorder.start();
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+      } catch (err) {
+        alert('Could not access microphone. Please ensure permissions are granted.');
+      }
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      recordBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+
+    // Upload Form Submission
+    document.getElementById('upload-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (response.ok) {
+          alert('Content uploaded successfully!');
+          form.reset();
+          document.getElementById('image-preview').style.display = 'none';
+          document.getElementById('audio-playback').style.display = 'none';
+          document.getElementById('audio-data').value = '';
+          window.location.reload();
+        } else {
+          const errorData = await response.json();
+          alert('Upload failed: ' + errorData.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during the upload.');
+      }
+    });
+  </script>
+</body>
+</html>

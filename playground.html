@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Playground</title>
+    <style>
+        /* General Body and Container Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+            transition: background-color 0.3s ease;
+        }
+
+        .colorful-theme {
+            background-color: #e0f7fa;
+        }
+
+        .simple-theme {
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        /* Top Bar and Header */
+        .top-bar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a202c;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Forms and Inputs */
+        .form-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .form-input, .form-select {
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            flex-grow: 1;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(76, 81, 191, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            background-color: #4c51bf;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #3f448c;
+        }
+
+        .btn-green {
+            background-color: #38a169;
+        }
+
+        .btn-green:hover {
+            background-color: #2f855a;
+        }
+
+        /* Content Display */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .content-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .content-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+        }
+
+        .content-info {
+            padding: 15px;
+        }
+
+        .content-label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.125rem;
+            margin-bottom: 10px;
+        }
+
+        /* Modal for large image */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            border-radius: 8px;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+
+        /* Supervisor passcode prompt */
+        .passcode-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            z-index: 2000;
+            display: none;
+            text-align: center;
+        }
+
+        .passcode-modal.active {
+            display: block;
+        }
+
+        .passcode-modal input {
+            display: block;
+            margin: 15px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .passcode-modal h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body class="{{ 'colorful-theme' if theme == 'colorful' else 'simple-theme' }}">
+    <div class="container">
+        <header class="top-bar-container">
+            <h1 class="header-title">Student Playground</h1>
+            <div class="controls">
+                <form id="theme-form" action="{{ url_for('set_theme') }}" method="post" class="form-group">
+                    <input type="hidden" name="passcode" id="theme-passcode">
+                    <select name="theme" class="form-select">
+                        <option value="colorful" {% if theme == 'colorful' %}selected{% endif %}>Colorful</option>
+                        <option value="simple" {% if theme == 'simple' %}selected{% endif %}>Simple</option>
+                    </select>
+                    <button type="button" onclick="showPasscodeModal('theme')" class="btn">Set Theme</button>
+                </form>
+                <button onclick="showPasscodeModal('dashboard')" class="btn">Supervisor Dashboard</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="form-card">
+                <form id="view-content-form" action="{{ url_for('playground') }}" method="get">
+                    <input type="hidden" name="passcode" id="view-content-passcode">
+                    <div class="form-group">
+                        <label for="student-select">Select Student:</label>
+                        <select name="student" id="student-select" class="form-select">
+                            {% for student in students %}
+                                <option value="{{ student }}" {% if selected_student == student %}selected{% endif %}>{{ student }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="showPasscodeModal('view_content')" class="btn btn-green">View Content</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if selected_student %}
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Content for {{ selected_student }}</h2>
+                <div class="content-grid">
+                    {% for item in content %}
+                    <div class="content-card">
+                        {% if item["image"] %}
+                            <img src="{{ url_for('static', filename='uploads/' + item['image']) }}" alt="{{ item['label'] }}" onclick="showBigImage(this, '{{ url_for('static', filename='uploads/' + item['audio']) if item['audio'] else '' }}')">
+                        {% endif %}
+                        <div class="content-info">
+                            <span class="content-label">{{ item["label"] }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center">
+                        <p class="text-gray-500 text-xl italic mt-12">No content available for this student.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <p class="text-gray-500 text-xl italic mt-12">Please select a student to view their content.</p>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <div id="imageModal" class="modal-overlay" onclick="hideModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" alt="Enlarged Image">
+        </div>
+    </div>
+    
+    <div id="passcodeModal" class="passcode-modal">
+      <h3>Enter Supervisor Passcode:</h3>
+      <input type="password" id="passcodeInput" placeholder="Passcode" class="form-input">
+      <button onclick="checkPasscode()" class="btn btn-green mt-4">Submit</button>
+    </div>
+
+    <script>
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const passcodeModal = document.getElementById('passcodeModal');
+        const passcodeInput = document.getElementById('passcodeInput');
+        let currentAction = '';
+
+        function showBigImage(imgElement, audioPath) {
+            modalImage.src = imgElement.src;
+            imageModal.classList.add('active');
+            
+            if (audioPath) {
+                const audio = new Audio(audioPath);
+                audio.play();
+            }
+
+            // Set a timeout to close the modal after 7 seconds
+            setTimeout(hideModal, 7000);
+        }
+
+        function hideModal() {
+            imageModal.classList.remove('active');
+        }
+
+        function showPasscodeModal(action) {
+            currentAction = action;
+            passcodeModal.classList.add('active');
+        }
+
+        function checkPasscode() {
+            if (passcodeInput.value === "1234") {
+                switch (currentAction) {
+                    case 'dashboard':
+                        window.location.href = "{{ url_for('dashboard') }}";
+                        break;
+                    case 'theme':
+                        document.getElementById('theme-passcode').value = passcodeInput.value;
+                        document.getElementById('theme-form').submit();
+                        break;
+                    case 'view_content':
+                        document.getElementById('view-content-passcode').value = passcodeInput.value;
+                        document.getElementById('view-content-form').submit();
+                        break;
+                }
+            } else {
+                alert("Incorrect passcode. Please try again.");
+                passcodeInput.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
